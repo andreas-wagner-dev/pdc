@@ -2,7 +2,58 @@
 
 **Ein OOP-konformes Tool zur Validierung von Paketstrukturen in Java-Projekten**
 
+
+👉 Das Diagramm zeigt:  
+- `b[0]` als Root-Namespace  
+- Abstraktionen (`a[n]`) definieren die Hierarchie  
+- Implementierungspakete (`p[n]`) hängen streng an den Abstraktionen  
+- Implementierungen (`i[n]`) leben ausschließlich in ihren jeweiligen Paketen  
+
+```mermaid
+flowchart TD
+
+    %% Root Namespace
+    B0["b[0] com.example.pdc"]
+
+    %% Abstraktionen Ebene 1
+    A1_App["a[1] App.java"]
+    A1_Rule["a[1] Rule.java"]
+    A1_Package["a[1] Package.java"]
+
+    %% Pakete Ebene 1
+    P1_app["p[1] app/"]
+    P1_rule["p[1] rule/"]
+
+    %% Implementierungen Ebene 2
+    I2_PDCApp["i[2] PDCApp.java"]
+    I2_ConsoleApp["i[2] ConsolePDCApp.java"]
+    I2_CycleRule["i[2] CycleRule.java"]
+
+    %% Abstraktion Ebene 2
+    A2_SubRule["a[2] SubRule.java"]
+
+    %% Paket Ebene 2
+    P2_subrule["p[2] subrule/"]
+
+    %% Implementierung Ebene 3
+    I3_MySubRule["i[3] MySubRule.java"]
+
+    %% Verknüpfungen
+    B0 --> A1_App
+    B0 --> A1_Rule
+    B0 --> A1_Package
+    A1_App --> P1_app
+    P1_app --> I2_PDCApp
+    P1_app --> I2_ConsoleApp
+
+    A1_Rule --> P1_rule
+    P1_rule --> I2_CycleRule
+    P1_rule --> A2_SubRule
+    A2_SubRule --> P2_subrule
+    P2_subrule --> I3_MySubRule
+
 ---
+
 
 ## **1. Fachliche Anforderungen**
 
@@ -53,6 +104,52 @@
 
 ---
 ### 2.3 Paketstruktur-Regeln
+Formale Ebenenzuordnung
+**Notation**
+b[n] = Namespace (Basisstruktur, „Box“), Ebene n
+a[n] = Abstraktion, Ebene n
+p[n] = Paket (Implementierungs-Container für a[n]), Ebene n
+i[n] = Implementierung, Ebene n
+
+**Beispielstruktur formalisiert**
+```
+b[0]  com.example.pdc
+│
+├── a[1]  App.java
+├── p[1]  app/
+│   ├── i[2]  PDCApp.java
+│   └── i[2]  ConsolePDCApp.java
+│
+├── a[1]  Rule.java
+├── p[1]  rule/
+│   ├── i[2]  CycleRule.java
+│   ├── a[2]  SubRule.java
+│   └── p[2]  subrule/
+│       └── i[3]  MySubRule.java
+│
+└── a[1]  Package.java
+```
+
+**Regeln für Ebenenzuordnung**
+
+**Namespace-Regel (b[n])**
+Es existiert genau ein Root-Namespace b[0], der die globale Ordnungsbasis bildet.
+Darunter entstehen Abstraktionen und Pakete.
+
+**Abstraktionsregel (a[n])**
+Abstraktionen a[n] dürfen direkt im übergeordneten Namespace/Package existieren.
+Abstraktionen definieren die Architektur-Hierarchie.
+Jede Abstraktion a[n] ist Voraussetzung für die Existenz eines gleichnamigen Implementierungspakets p[n].
+
+**Paketregel (p[n])**
+Jedes Implementierungspaket p[n] darf nur existieren, wenn eine Abstraktion a[n] im selben Namespace oder einer höheren Ebene definiert ist.
+p[n] enthält nur Implementierungen i[n+1] oder weitere Abstraktionen a[n+1].
+
+**Implementierungsregel (i[n])**
+Jede Implementierung i[n] ist strikt an eine Abstraktion a[n-1] gebunden.
+Implementierungen können nur innerhalb von p[n-1] existieren.
+Es gibt keine „freien Implementierungen“ außerhalb eines passenden Pakets.
+
 ---
 ### 2.3.1 Formale Definition der Paketstruktur
 *Notation:*
@@ -92,7 +189,7 @@ Pakete entstehen nur auf der Ebene von Abstraktionen und nur dann, wenn eine gle
 - b[0]: Root-Namespace (immer Ebene 0)
 - a[n]: Abstraktion auf Ebene n (Interface oder abstrakte Klasse)
 - p[n]: Paket auf Ebene n für Realisierungen von a[n]
-```
+  
 **Regel 2: Namenskonventionen**
 Der Paketname muss dem Namen der korrespondierenden Abstraktion entsprechen:
 ```
@@ -102,7 +199,7 @@ Der Paketname muss dem Namen der korrespondierenden Abstraktion entsprechen:
 - Abstraktion (a[n])           --> Paket (p[n])
 - com.example.pdc.Rule         --> com.example.pdc/rule/
 - com.example.pdc.rule.SubRule --> com.example.pdc/rule/subrule/
----
+
 **Regel 3: Paketinhalte**
 Pakete dürfen nur Realisierungen ihrer gleichnamigen Abstraktion enthalten:
 ```
@@ -111,7 +208,7 @@ Pakete dürfen nur Realisierungen ihrer gleichnamigen Abstraktion enthalten:
 - i[n]: Implementierung (konkrete Klasse) im Paket p[n]
 - a[n]: Abstraktion auf Ebene n
 - ⊑: "ist eine Realisierung von" (Implementierung, Vererbung oder Dekoration)
----
+
 **Regel 4: Rekursive Struktur**
 Die Regeln gelten rekursiv für alle Ebenen (n ≥ 1):
 ```
@@ -122,39 +219,5 @@ Die Regeln gelten rekursiv für alle Ebenen (n ≥ 1):
 ## 4. Implementierung der Klassen
 
 
-
-
-#### **2.3.1 Paketentstehung**
-Pakete entstehen **ausschließlich** auf Ebene gleichnamiger Abstraktionen:
----
-∃p[n]⟺∃a[n]∈b[0]
----
-- b[0]: Root-Namespace (z. B. com.example.pdc)
-- a[n]: Abstraktion im Root-Namespace (z. B. com.example.pdc.Rule)
-- p[n]: Paket für Realisierungen (z. B. com.example.pdc.rule/)
-
-#### **2.3.3 Paketinhalte**
-Pakete dürfen **nur Realisierungen** ihrer gleichnamigen Abstraktion enthalten:
----
-∀c ∈ p[n]: c ⊑ a[n]
----
-- `⊑`: Implementierung, Vererbung oder Dekoration
-- `c`: Klasse im Paket
-- `a[n]`: Abstraktion des Pakets
-- 
----
-## **3. Paketstruktur**
-
-com.example.pdc/
-├── app/                    # Application Layer
-│   ├── PDCApp.java          # Core Application
-│   └── ConsolePDCApp.java   # Decorator für Konsolenausgabe
-├── rule/                    # Regeln
-│   ├── CycleRule.java        # Zyklenerkennung
-│   ├── NamingRule.java       # Namenskonventionen
-│   ├── PackageRule.java      # Regel-Interface
-│   └── RealizationRule.java  # Realisierungsprüfung
-├── Rule.java             # Repräsentiert ein Paket
-└── App.java         # Repräsentiert ein Abstraktion
 
 
