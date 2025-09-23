@@ -1,0 +1,396 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>de.example</groupId>
+  <artifactId>pdc</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  
+<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>11</java.version>
+		<maven.compiler.release>11</maven.compiler.release>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<!-- By default, not fail on missing web.xml -->
+		<failOnMissingWebXml>false</failOnMissingWebXml>
+		<!-- By default, skip tests -->
+		<skipTests>true</skipTests>
+		<!-- Maven Plugins -->
+		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+		<maven-war-plugin.version>3.3.2</maven-war-plugin.version>
+		<maven-dependency-plugin.version>3.5.0</maven-dependency-plugin.version>
+		<!-- Jakarta EE API -->
+		<jakartaee-api.version>10.0.0</jakartaee-api.version>
+		<!-- Wildfly server-->
+		<wildfly.version>27.0.0.Final</wildfly.version>
+		<wildfly-maven-plugin.version>4.0.0.Final</wildfly-maven-plugin.version>
+		<!-- primefaces -->
+		<primefaces.version>14.0.0</primefaces.version>
+		<primefaces.extensions.version>13.0.2</primefaces.extensions.version>
+		<primefaces.themes.version>1.0.10</primefaces.themes.version>
+
+ 		<poi.version>5.2.3</poi.version>
+
+ 		<omnifaces.version>4.2</omnifaces.version>
+ 		<version.org.apache.myfaces>4.0.1</version.org.apache.myfaces>
+ 		<version.commons-digester>2.1</version.commons-digester>
+		<!-- database -->
+		<postgresql.version>42.2.12</postgresql.version>
+		<!-- hibernate -->
+		<hibernate.version>6.1.5.Final</hibernate.version>
+		<!-- hikari.cp.version -->
+		<hikari.cp.version>5.0.1</hikari.cp.version>
+		<!-- quartz -->
+		<quartz.version>2.3.2</quartz.version>
+		<!--unit testing -->
+		<junit.jupiter.version>5.9.3</junit.jupiter.version>
+		<!-- mockito  -->
+		<mockito.version>5.3.1</mockito.version>
+	</properties>
+
+	<!-- <repositories>
+		<repository>
+			<id>primefaces</id>
+			<name>PrimeFaces Maven Repository</name>
+			<url>https://repository.primefaces.org</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>-->
+
+	<dependencies>
+
+		<!-- jakarta platform provided by Server -->
+		<dependency>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
+			<version>${jakartaee-api.version}</version>
+			<scope>provided</scope>
+		    <exclusions>
+		        <exclusion>
+		            <groupId>jakarta.faces</groupId>
+		            <artifactId>jakarta.faces-api</artifactId>
+		        </exclusion>
+		    </exclusions>
+		</dependency>
+		<!-- CDI provided by Server -->
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+		
+	   <!-- Faces engine compiled -->
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-api</artifactId>
+            <version>${version.org.apache.myfaces}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.myfaces.core</groupId>
+            <artifactId>myfaces-impl</artifactId>
+            <version>${version.org.apache.myfaces}</version>
+        </dependency>
+        <!-- Faces Utillities lib  compiled -->
+        <dependency>
+            <groupId>org.omnifaces</groupId>
+            <artifactId>omnifaces</artifactId>
+            <version>${omnifaces.version}</version>
+            <scope>compile</scope>
+        </dependency>
+		
+		<!--Faces UIComponent decorator lib compiled -->
+		<!-- https://mvnrepository.com/artifact/org.primefaces/primefaces -->
+		<dependency>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+			<version>${primefaces.version}</version>
+			<classifier>jakarta</classifier>
+		</dependency>
+		<!--
+		https://mvnrepository.com/artifact/org.primefaces.extensions/primefaces-extensions -->
+		<!--		<dependency>
+			<groupId>org.primefaces.extensions</groupId>
+			<artifactId>primefaces-extensions</artifactId>
+			<version>${primefaces.extensions.version}</version>
+			<classifier>jakarta</classifier>
+		</dependency>-->
+
+		<!-- Icons support of 'FontAwesome' need to manually include it via pom.xml: -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>font-awesome</artifactId>
+			<version>5.12.0</version>
+		</dependency>
+
+		<!-- ChartJS model -->
+		<dependency>
+			<groupId>software.xdev</groupId>
+			<artifactId>chartjs-java-model</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+
+		<!-- database -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${postgresql.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.1.210</version>
+		</dependency>
+
+		<!-- hibernate and  HikariCP -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-hikaricp</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>${hikari.cp.version}</version>
+		</dependency>
+		
+		<!-- quartz -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>${quartz.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-jobs</artifactId>
+			<version>${quartz.version}</version>
+		</dependency>
+		
+		<!-- testing -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- Mockito -->
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>jakarta.json.bind</groupId>
+			<artifactId>jakarta.json.bind-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse</groupId>
+			<artifactId>yasson</artifactId>
+			<version>3.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>8.0.0.Final</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Jira-Rest-Client -->
+		<dependency>
+			<groupId>com.atlassian.jira</groupId>
+			<artifactId>jira-rest-java-client-api</artifactId>
+			<version>5.2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atlassian.jira</groupId>
+			<artifactId>jira-rest-java-client-core</artifactId>
+			<version>5.2.4</version>
+			<!--
+			https://stackoverflow.com/questions/76119446/strange-issues-with-javax-ws-rs-core-uribuilder -->
+			<exclusions>
+				<exclusion>
+					<groupId>org.glassfish.jersey.core</groupId>
+					<artifactId>jersey-common</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!--
+		https://stackoverflow.com/questions/76119446/strange-issues-with-javax-ws-rs-core-uribuilder -->
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>2.27</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.atlassian.fugue</groupId>
+			<artifactId>fugue</artifactId>
+			<version>4.7.2</version>
+		</dependency>
+
+
+		<!-- wildfly-jar-maven-plugin -->
+		<dependency>
+			<groupId>org.wildfly.plugins</groupId>
+			<artifactId>wildfly-jar-maven-plugin</artifactId>
+			<version>3.0.0.Final</version>
+		</dependency>
+
+       <!-- Data Exporter -->
+		<dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${poi.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.xmlgraphics</groupId>
+                    <artifactId>batik-all</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>de.rototor.pdfbox</groupId>
+                    <artifactId>graphics2d</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.santuario</groupId>
+                    <artifactId>xmlsec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcpkix-jdk15on</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.virtuald</groupId>
+                    <artifactId>curvesapi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>jira-client-impl-repository</id>
+			<url>https://maven.atlassian.com/repository/public</url>
+		</repository>
+	</repositories>
+
+	<build>
+		<!-- Set the name of the WAR, used as the context root when the app
+            is deployed -->
+		<finalName>${project.artifactId}</finalName>
+
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<release>11</release>
+					 <encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${maven-war-plugin.version}</version>
+				<configuration>
+					<!-- Java EE doesn't require web.xml, Maven needs to catch up! -->
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+		     		<webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
+                </configuration>
+			</plugin>
+			
+			<!-- https://docs.wildfly.org/wildfly-maven-plugin/complex-example.html -->
+			<!-- The example below shows how to run wildfly as embedded in a .jar file.-->
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-maven-plugin</artifactId>
+				<version>4.1.0.Final</version>
+			</plugin>
+			
+			<!-- resources-plugins -->
+			
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-jar-maven-plugin</artifactId>
+				<version>10.0.0.Final</version>
+				<configuration>
+					<feature-packs>
+						<feature-pack>
+							<location>
+								wildfly@maven(org.jboss.universe:community-universe)#27.0.0.Final</location>
+						</feature-pack>
+					</feature-packs>
+					<plugin-options>
+						<jboss-fork-embedded>${plugin.fork.embedded}</jboss-fork-embedded>
+					</plugin-options>
+					<layers>
+						<!-- <layer>jaxrs</layer> -->
+						<layer>cdi</layer>
+						<!-- <layer>ejb-lite</layer> -->
+						<layer>jpa</layer>
+						<layer>jsf</layer>
+						<layer>h2-driver</layer>
+					</layers>
+					<excluded-layers>
+						<layer>deployment-scanner</layer>
+					</excluded-layers>
+					<output-file-name>${project.artifactId}.jar</output-file-name>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>package</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+</project>
